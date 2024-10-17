@@ -1,0 +1,52 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%post
+    # Update and install necessary packages
+    apt-get update && apt-get install -y \
+        build-essential \
+        wget \
+        git \
+        automake \
+        autoconf \
+        libtool \
+        flex \
+        libslurm-dev \
+        libpmi2-0-dev \
+        libibverbs-dev \
+        librdmacm-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Set OpenMPI version to match host system
+    OMPI_VERSION=4.1.5
+
+    # Download and install OpenMPI
+    wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-${OMPI_VERSION}.tar.bz2
+    tar -xjf openmpi-${OMPI_VERSION}.tar.bz2
+    cd openmpi-${OMPI_VERSION}
+    ./configure --prefix=/usr/local \
+                --with-slurm \
+                --with-pmi=/usr \
+                --with-pmi-libdir=/usr/lib/x86_64-linux-gnu \
+                --with-verbs \
+                --enable-mpirun-prefix-by-default \
+                --with-hwloc=internal
+    make -j$(nproc)
+    make install
+    cd ..
+    rm -rf openmpi-${OMPI_VERSION} openmpi-${OMPI_VERSION}.tar.bz2
+
+    # Update library cache
+    ldconfig
+
+%environment
+    export PATH=/usr/local/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+    # Remove specific MTL and PML settings
+    export OMPI_MCA_btl=^openib
+    # Let OpenMPI choose the best available transport layer
+    export OMPI_MCA_pml=^cm
+
+%runscript
+    echo "Container with OpenMPI ${OMPI_VERSION}, Slurm PMI, and Infiniband support is ready."
+    exec "$@"
