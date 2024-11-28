@@ -1,12 +1,12 @@
-This test script does the following:
+## `mpi_test.c`
 
-* runs for approximately 2.5 minutes
-* Performs repeated AllReduce operations, which test collective communication.
-* Also performs point-to-point communication between the first and last ranks.
-* Prints the node information for each process, helping you verify that the processes are running on different nodes.
-* Reports the total runtime, number of iterations completed, and average time per iteration.
+* Run across multiple nodes (2 nodes, 2 processes per node by default)
+* Print detailed information about each process including:
 
-
+  - Hostname of each node
+  - MPI processor name
+  - Process ID
+  - Rank distribution
 
 ## `matrixmultiplympi_test.c`
 
