@@ -1,52 +1,112 @@
 Bootstrap: docker
-From: ubuntu:20.04
+From: ubuntu:22.04
+
+%environment
+    export OMPI_DIR=/opt/ompi
+    export PATH="$OMPI_DIR/bin:$PATH"
+    export LD_LIBRARY_PATH="$OMPI_DIR/lib:$LD_LIBRARY_PATH"
+    export MANPATH="$OMPI_DIR/share/man:$MANPATH"
+    # Add PMI-specific environment variables
+    export PMIX_MCA_psec=native
+    export OMPI_MCA_btl_vader_single_copy_mechanism=none
 
 %post
-    # Update and install necessary packages
-    apt-get update && apt-get install -y \
+    # Install essential build tools and dependencies
+    apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
+        ca-certificates \
         wget \
         git \
+        tar \
+        gzip \
+        perl \
+        python3 \
+        python-is-python3 \
         automake \
         autoconf \
         libtool \
         flex \
+        hwloc \
+        zlib1g-dev \
+        libnuma-dev \
+        libhwloc-dev \
         libslurm-dev \
+        slurm-wlm \
+        libpmi2-0 \
+        libpmi0 \
         libpmi2-0-dev \
+        libpmi0-dev \
+        libslurm-dev \
         libibverbs-dev \
         librdmacm-dev \
+        libucx-dev \
+        libevent-dev \
+        libev-dev \
         && rm -rf /var/lib/apt/lists/*
 
-    # Set OpenMPI version to match host system
-    OMPI_VERSION=4.1.5
+    # Create symlinks for PMI libraries if they don't exist in standard locations
+    ln -sf /usr/lib/x86_64-linux-gnu/libpmi2.so.0 /usr/lib/libpmi2.so
+    ln -sf /usr/lib/x86_64-linux-gnu/libpmi.so.0 /usr/lib/libpmi.so
 
-    # Download and install OpenMPI
-    wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-${OMPI_VERSION}.tar.bz2
-    tar -xjf openmpi-${OMPI_VERSION}.tar.bz2
-    cd openmpi-${OMPI_VERSION}
-    ./configure --prefix=/usr/local \
-                --with-slurm \
-                --with-pmi=/usr \
-                --with-pmi-libdir=/usr/lib/x86_64-linux-gnu \
-                --with-verbs \
-                --enable-mpirun-prefix-by-default \
-                --with-hwloc=internal
+    # Install PMIx
+    cd /tmp
+    wget https://github.com/openpmix/openpmix/releases/download/v4.2.7/pmix-4.2.7.tar.gz
+    tar -xvf pmix-4.2.7.tar.gz
+    cd pmix-4.2.7
+    ./configure --prefix=/usr --disable-python-bindings
     make -j$(nproc)
     make install
-    cd ..
-    rm -rf openmpi-${OMPI_VERSION} openmpi-${OMPI_VERSION}.tar.bz2
-
-    # Update library cache
     ldconfig
 
-%environment
-    export PATH=/usr/local/bin:$PATH
-    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-    # Remove specific MTL and PML settings
-    export OMPI_MCA_btl=^openib
-    # Let OpenMPI choose the best available transport layer
-    export OMPI_MCA_pml=^cm
+    # Build and install OpenMPI
+    mkdir -p /tmp/ompi
+    cd /tmp/ompi
+    wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.5.tar.gz
+    tar -xvf openmpi-4.1.5.tar.gz
+    cd openmpi-4.1.5
 
-%runscript
-    echo "Container with OpenMPI ${OMPI_VERSION}, Slurm PMI, and Infiniband support is ready."
-    exec "$@"
+    # Configure OpenMPI with updated PMI support
+    ./configure --prefix=/opt/ompi \
+        --with-slurm=/usr \
+        --with-pmix=/usr \
+        --with-pmi=/usr \
+        --with-pmi-libdir=/usr/lib/x86_64-linux-gnu \
+        --enable-mpirun-prefix-by-default \
+        --enable-mpi1-compatibility \
+        --enable-orterun-prefix-by-default \
+        --with-hwloc=/usr \
+        --disable-getpwuid \
+        --enable-builtin-atomics \
+        --with-zlib \
+        --with-ucx=/usr \
+        --with-verbs \
+        --disable-openib-connectx-xrc \
+        --enable-mca-no-build=btl-uct \
+        --enable-static=no
+
+    make -j$(nproc)
+    make install
+
+    # Cleanup
+    cd /
+    rm -rf /tmp/ompi /tmp/pmix*
+
+%labels
+    Author YourName
+    Version v1.0
+    OpenMPI_Version 4.1.5
+
+%help
+    This container provides OpenMPI 4.1.5 built with:
+    - Slurm support with PMIx
+    - PMI/PMI2 support
+    - Infiniband support
+    - UCX support
+    - Hardware locality (hwloc) support
+
+    To build:
+    $ apptainer build openmpi.sif openmpi.def
+
+    To run:
+    $ srun --mpi=pmix apptainer exec openmpi.sif ./your_mpi_program
+
