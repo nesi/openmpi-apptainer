@@ -8,7 +8,7 @@
   - Process ID
   - Rank distribution
 
-<detail>
+<details>
 <summary>Standard out</summary
 --------------------------------------------------------------------------
 WARNING: There was an error initializing an OpenFabrics device.
