@@ -2,58 +2,58 @@ The following modules were not unloaded:
   (Use "module --force purge" to unload all):
 
   1) XALT/minimal   2) slurm   3) NeSI
---------------------------------------------------------------------------
-WARNING: There was an error initializing an OpenFabrics device.
-
-  Local host:   wmc005
-  Local device: mlx5_0
---------------------------------------------------------------------------
---------------------------------------------------------------------------
-WARNING: There was an error initializing an OpenFabrics device.
-
-  Local host:   wmc005
-  Local device: mlx5_0
---------------------------------------------------------------------------
---------------------------------------------------------------------------
-WARNING: There was an error initializing an OpenFabrics device.
-
-  Local host:   wmc006
-  Local device: mlx5_0
---------------------------------------------------------------------------
---------------------------------------------------------------------------
-WARNING: There was an error initializing an OpenFabrics device.
-
-  Local host:   wmc006
-  Local device: mlx5_0
---------------------------------------------------------------------------
 Initializing matrices...
 
 === Parallel Matrix Multiplication Performance ===
-Matrix size: 1000 x 1000
-Number of processes: 4
-Total execution time: 0.92 seconds
-Result verification checksum: 2.499528e+08
+Matrix size: 7000 x 7000
+Number of processes: 8
+Total execution time: 165.17 seconds
+Result verification checksum: 8.577208e+10
 
 Process Statistics:
 Rank 0 running on wmc005:
-  Rows processed: 250
+  Rows processed: 875
   Block size used: 100
-  Memory used: 4.58 MB
+  Memory used: 98.80 MB
 
 Process Statistics:
 Rank 1 running on wmc005:
-  Rows processed: 250
+  Rows processed: 875
   Block size used: 100
-  Memory used: 4.58 MB
+  Memory used: 98.80 MB
 
 Process Statistics:
-Rank 2 running on wmc006:
-  Rows processed: 250
+Rank 2 running on wmc008:
+  Rows processed: 875
   Block size used: 100
-  Memory used: 4.58 MB
+  Memory used: 98.80 MB
 
 Process Statistics:
-Rank 3 running on wmc006:
-  Rows processed: 250
+Rank 4 running on wmc009:
+  Rows processed: 875
   Block size used: 100
-  Memory used: 4.58 MB
+  Memory used: 98.80 MB
+
+Process Statistics:
+Rank 3 running on wmc008:
+  Rows processed: 875
+  Block size used: 100
+  Memory used: 98.80 MB
+
+Process Statistics:
+Rank 5 running on wmc009:
+  Rows processed: 875
+  Block size used: 100
+  Memory used: 98.80 MB
+
+Process Statistics:
+Rank 6 running on wmc010:
+  Rows processed: 875
+  Block size used: 100
+  Memory used: 98.80 MB
+
+Process Statistics:
+Rank 7 running on wmc010:
+  Rows processed: 875
+  Block size used: 100
+  Memory used: 98.80 MB
