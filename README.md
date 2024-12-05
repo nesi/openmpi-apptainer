@@ -31,3 +31,36 @@ srun --mpi=pmi2 apptainer exec --env UCX_WARN_UNUSED_ENV_VARS=n openmpi-4.1.5.ai
 ##  *OpenMPI/4.1.5-GCC-12.3.0* vs *Apptainer* runtime comparison for  `matrixmultiplympi_test.c` ( `MATRIX_SIZE 7000`)
 
 ![image](./images/openmpi_runtime.png)
+
+<details>
+<summary>R script</summary>
+
+```r
+library(ggplot2)
+library(stringr)
+
+# Create the data frame
+data <- data.frame(
+  Implementation = c("Env.Module (OpenMPI/4.1.5-GCC-12.3.0)", "Apptainer"),
+  Runtime = c(157, 179)
+)
+
+# Create the plot with default ggplot2 settings
+ggplot(data, aes(x = Implementation, y = Runtime, fill = Implementation)) +
+  geom_col(width = 0.2) +
+  geom_text(aes(label = Runtime), vjust = -0.5, size = 4) +
+  labs(
+    title = expression(atop(
+      "Runtime Comparison: Env.Module vs Apptainer",
+      paste(italic("matrixmultiplympi_test.c"), " (MATRIX_SIZE 7000)")
+    )),
+    x = "OpenMPI Implementation",
+    y = "Runtime (seconds)"
+  ) +
+  theme_grey(base_size = 15) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5, lineheight = 1.2)
+  )
+```
+</details>
