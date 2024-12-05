@@ -6,7 +6,7 @@
 #include <time.h>
 #include <string.h>  // Added for memcpy
 
-#define MATRIX_SIZE 1000  // Reduced from 2000 to 1000
+#define MATRIX_SIZE 7000  // Reduced from 2000 to 1000
 #define BLOCK_SIZE 100    // Process data in smaller blocks
 #define MASTER 0
 
